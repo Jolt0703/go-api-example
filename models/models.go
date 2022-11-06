@@ -3,7 +3,7 @@ package models
 import "time"
 
 type Article struct {
-	ID          int       `json:"article_id"` // 記事ID
+	ArticleID   int       `json:"article_id"` // 記事ID
 	Title       string    `json:"title"`      // 記事タイトル
 	Contents    string    `json:"contents"`   // 記事本文
 	UserName    string    `json:"user_name"`  // 投稿者名

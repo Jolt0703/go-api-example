@@ -20,7 +20,7 @@ var (
 
 var (
 	Article1 = Article{
-		ID:          1,
+		ArticleID:   1,
 		Title:       "first article",
 		Contents:    "This is the test article.",
 		UserName:    "John Doe",
@@ -30,7 +30,7 @@ var (
 	}
 
 	Article2 = Article{
-		ID:        2,
+		ArticleID: 2,
 		Title:     "second article",
 		Contents:  "This is the test article.",
 		UserName:  "John Smith",
