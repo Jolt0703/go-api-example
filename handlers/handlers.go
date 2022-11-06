@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -20,38 +18,17 @@ func HelloHandler(w http.ResponseWriter, req *http.Request) {
 
 // /article
 func PostArticleHandler(w http.ResponseWriter, req *http.Request) {
-	// リクエストヘッダのContent-Lengthからbodyの長さを取得
-	length, err := strconv.Atoi(req.Header.Get("Content-Length"))
-	if err != nil {
-		http.Error(w, "couldn't get content length\n", http.StatusBadRequest)
-		return
-	}
-
-	// リクエストボディのjsonデータを[]byteスライスに格納
-	reqBodybuffer := make([]byte, length)
-	if _, err := req.Body.Read(reqBodybuffer); !errors.Is(err, io.EOF) {
-		http.Error(w, "failed to get request body\n", http.StatusBadRequest)
-		return
-	}
-	defer req.Body.Close()
-
-	// jsonデータをGoの構造体に変換
+	// リクエストボディから記事の内容を取得
 	var reqArticle models.Article
-	if err := json.Unmarshal(reqBodybuffer, &reqArticle); err != nil {
+	if err := json.NewDecoder(req.Body).Decode(&reqArticle); err != nil {
 		http.Error(w, "failed to decode json\n", http.StatusBadRequest)
 		return
 	}
 
-	// レスポンスのためにGoの構造体をjsonデータに再度変換
+	// Goの構造体をjsonデータに再度変換しレスポンスストリームに書き込み
 	article := reqArticle
-	jsonData, err := json.Marshal(article)
-	if err != nil {
-		http.Error(w, "failed to encode json\n", http.StatusInternalServerError)
-		return
-	}
-
 	log.Printf("Posting Article...\n")
-	w.Write(jsonData)
+	json.NewEncoder(w).Encode(article)
 }
 
 // /article/list?page=[x]
@@ -70,19 +47,10 @@ func ArticleListHandler(w http.ResponseWriter, req *http.Request) {
 		}
 	}
 
-	// レスポンスのためにGoの構造体をjsonデータに変換
-	article1, article2 := models.Article1, models.Article2
-	articleList := []models.Article{article1, article2}
-	jsonData, err := json.Marshal(articleList)
-
-	if err != nil {
-		errMsg := fmt.Sprintf("failed to encode json (page %d)\n", page)
-		http.Error(w, errMsg, http.StatusInternalServerError)
-		return
-	}
-
+	// Goの構造体をjsonデータに変換しレスポンスストリームに書き込み
+	articleList := []models.Article{models.Article1, models.Article2}
 	log.Printf("Article List (page %d)\n", page)
-	w.Write(jsonData)
+	json.NewEncoder(w).Encode(articleList)
 }
 
 // /article/[id]
@@ -95,44 +63,38 @@ func ArticleDetailHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// レスポンスのためにGoの構造体をjsonデータに変換
-	article1 := models.Article1
-	jsonData, err := json.Marshal(article1)
-
-	if err != nil {
-		errMsg := fmt.Sprintf("failed to encode json (articleID %d)\n", articleID)
-		http.Error(w, errMsg, http.StatusInternalServerError)
-		return
-	}
-
+	// Goの構造体をjsonデータに変換しレスポンスストリームに書き込み
+	article := models.Article1
 	log.Printf("Article No.%d\n", articleID)
-	w.Write(jsonData)
+	json.NewEncoder(w).Encode(article)
 }
 
 // /article/nice
 func PostNiceHandler(w http.ResponseWriter, req *http.Request) {
-	// レスポンスのためにGoの構造体をjsonデータに変換
-	article1 := models.Article1
-	jsonData, err := json.Marshal(article1)
-
-	if err != nil {
-		http.Error(w, "failed to encode json\n", http.StatusInternalServerError)
+	// リクエストボディからいいねする記事の内容を取得
+	var reqArticle models.Article
+	if err := json.NewDecoder(req.Body).Decode(&reqArticle); err != nil {
+		http.Error(w, "failed to decode json\n", http.StatusBadRequest)
+		return
 	}
 
+	// Goの構造体をjsonデータに再変換しレスポンスストリームに書き込み
+	article := reqArticle
 	log.Printf("Posting Nice...\n")
-	w.Write(jsonData)
+	json.NewEncoder(w).Encode(article)
 }
 
 // /comment
 func PostCommentHandler(w http.ResponseWriter, req *http.Request) {
-	// レスポンスのためにGoの構造体をjsonデータに変換
-	comment1 := models.Comment1
-	jsonData, err := json.Marshal(comment1)
-
-	if err != nil {
-		http.Error(w, "failed to encode json\n", http.StatusInternalServerError)
+	// リクエストボディからコメントの内容を取得
+	var reqComment models.Comment
+	if err := json.NewDecoder(req.Body).Decode(&reqComment); err != nil {
+		http.Error(w, "failed to decode json\n", http.StatusBadRequest)
+		return
 	}
 
+	// Goの構造体をjsonデータに再変換しレスポンスストリームに書き込み
+	comment := reqComment
 	log.Printf("Posting Comment...\n")
-	w.Write(jsonData)
+	json.NewEncoder(w).Encode(comment)
 }
