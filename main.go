@@ -6,7 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/Jolt0703/go-myapi/handlers"
+	"github.com/Jolt0703/go-api-example/handlers"
 )
 
 func main() {

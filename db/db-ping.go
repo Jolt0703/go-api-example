@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/Jolt0703/go-myapi/models"
+	"github.com/Jolt0703/go-api-example/models"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -31,33 +31,27 @@ func main() {
 	// クエリ実行
 	articleID := 1
 	const sqlStr = `select * from articles where article_id = ?;`
-	rows, err := db.Query(sqlStr, articleID)
+	row := db.QueryRow(sqlStr, articleID)
+	if err := row.Err(); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// クエリ結果を構造体に埋め込む
+	var article models.Article
+	var createdTime sql.NullTime
+	// Scanメソッドで取得レコードのデータをarticleの各フィールドに入れる
+	err = row.Scan(&article.ArticleID, &article.Title, &article.Contents, &article.UserName, &article.NiceNum, &createdTime)
+
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	defer rows.Close()
 
-	// クエリ結果を構造体に埋め込む
-	articleArray := make([]models.Article, 0)
-	for rows.Next() {
-		var article models.Article
-		var createdTime sql.NullTime
-		// Scanメソッドで取得レコードのデータをarticleの各フィールドに入れる
-		err := rows.Scan(&article.ArticleID, &article.Title, &article.Contents, &article.UserName, &article.NiceNum, &createdTime)
-
-		// Nullかもしれいない値をsql.NullTime型の変数で検査
-		if createdTime.Valid {
-			article.CreatedAt = createdTime.Time
-		}
-
-		if err != nil {
-			fmt.Println(err)
-		} else {
-			// 読み出し結果を格納した変数articleをスライスに追加
-			articleArray = append(articleArray, article)
-		}
+	// Nullかもしれいない値をsql.NullTime型の変数で検査
+	if createdTime.Valid {
+		article.CreatedAt = createdTime.Time
 	}
 
-	fmt.Printf("%+v\n", articleArray)
+	fmt.Printf("%+v\n", article)
 }

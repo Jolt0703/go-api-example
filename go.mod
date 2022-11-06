@@ -1,4 +1,4 @@
-module github.com/Jolt0703/go-myapi
+module github.com/Jolt0703/go-api-example
 
 go 1.17
 

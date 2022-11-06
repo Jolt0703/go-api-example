@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Jolt0703/go-myapi/models"
+	"github.com/Jolt0703/go-api-example/models"
 	"github.com/gorilla/mux"
 )
 
